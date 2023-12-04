@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GPA Calculator</title>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="title">Semester 1 GPA Calculator</h1>
+      <div class="is-flex">
+        <p id="gpaResult" class="subtitle mr-5">
+          GPS Attained: <span id="gps">0.00</span>
+        </p>
+        <p id="gpResult" class="subtitle">
+          GPA Attained: <span id="gpa">0.00</span>
+        </p>
+      </div>
+
+      <form id="gradeForm" class="is-flex is-align-items-center">
+        <label for="course" class="mr-3">Course:</label>
+        <div class="select mr-4">
+          <select id="course" name="course">
+            <option value="Algorithm and Programming">
+              Algorithm and Programming
+            </option>
+            <option value="Discrete Mathematics">Discrete Mathematics</option>
+            <option value="Human and Computer Interaction">
+              Human and Computer Interaction
+            </option>
+            <option value="Pancasila and Indonesian Culture">
+              Pancasila and Indonesian Culture
+            </option>
+            <option value="Program Design Methods">
+              Program Design Methods
+            </option>
+            <option value="Scientific Computing">Scientific Computing</option>
+          </select>
+        </div>
+
+        <label for="grade" class="mr-3">Grade:</label>
+        <div class="select mr-4">
+          <select id="grade" name="grade">
+            <option value="A">A</option>
+            <option value="A-">A-</option>
+            <option value="B+">B+</option>
+            <option value="B">B</option>
+            <option value="B-">B-</option>
+            <option value="C">C</option>
+            <option value="D">D</option>
+            <option value="E">E</option>
+          </select>
+        </div>
+        <button class="button is-primary" type="button" id="addCourse">
+          Add Course
+        </button>
+      </form>
+
+      <br />
+
+      <table class="table is-fullwidth">
+        <thead>
+          <tr>
+            <th>Course</th>
+            <th>Grade</th>
+            <th>Score Range</th>
+            <th>Weight</th>
+            <th>Credits</th>
+            <th>Conversion</th>
+          </tr>
+        </thead>
+        <tbody id="courseList"></tbody>
+        <tfoot>
+          <tr>
+            <th>Total</th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th id="totalCredits">0</th>
+            <th id="totalConversion">0</th>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <script>
+      $(document).ready(function () {
+        let courses = [];
+
+        $("#addCourse").click(function () {
+          const courseName = $("#course").val();
+          const grade = $("#grade").val();
+
+          const weight = getWeight(grade);
+          const credit = getCredit(courseName);
+          const score = weight * credit;
+
+          const gp = getGradePoints(grade);
+          const totalGp = gp * credit;
+
+          courses.push({
+            courseName,
+            grade,
+            credit,
+            weight,
+            score,
+            gp,
+            totalGp,
+          });
+
+          updateCourseList();
+          calculateGPA();
+        });
+
+        function updateCourseList() {
+          $("#courseList").empty();
+          let totalCredits = 0;
+          let totalConversion = 0;
+
+          courses.forEach((course) => {
+            totalCredits += course.credit;
+            totalConversion += course.weight * course.credit;
+
+            $("#courseList").append(
+              ` <tr>
+                    <td>${course.courseName}</td>
+                    <td>${course.grade}</td>
+                    <td>${getScoreRange(course.grade)}</td>
+                    <td>${course.weight}</td>
+                    <td>${course.credit}</td>
+                    <td>${course.weight * course.credit}</td>
+                </tr>`
+            );
+          });
+
+          $("#totalCredits").text(totalCredits);
+          $("#totalConversion").text(totalConversion.toFixed(2));
+        }
+
+        function calculateGPA() {
+          let totalScore = 0;
+          let totalCredit = 0;
+          let passCourse = 18;
+
+          courses.forEach((course) => {
+            totalScore += course.score;
+            totalCredit += course.credit;
+          });
+
+          const gps = (totalScore / totalCredit).toFixed(2);
+          const gpa = (totalScore / passCourse).toFixed(2);
+
+          $("#gpa").text(gpa);
+          $("#gps").text(gps);
+        }
+
+        function getWeight(grade) {
+          switch (grade) {
+            case "A":
+              return 4.0;
+            case "A-":
+              return 3.67;
+            case "B+":
+              return 3.33;
+            case "B":
+              return 3.0;
+            case "B-":
+              return 2.5;
+            case "C":
+              return 2.0;
+            case "D":
+              return 1.0;
+            case "E":
+              return 0.0;
+            default:
+              return 0.0;
+          }
+        }
+
+        function getGradePoints(grade) {
+          switch (grade) {
+            case "A":
+              return 4.0;
+            case "A-":
+              return 3.67;
+            case "B+":
+              return 3.33;
+            case "B":
+              return 3.0;
+            case "B-":
+              return 2.5;
+            case "C":
+              return 2.0;
+            case "D":
+              return 1.0;
+            case "E":
+              return 0.0;
+            default:
+              return 0.0;
+          }
+        }
+
+        function getCredit(courseName) {
+          switch (courseName) {
+            case "Algorithm and Programming":
+              return 6;
+            case "Discrete Mathematics":
+              return 4;
+            case "Human and Computer Interaction":
+              return 3;
+            case "Pancasila and Indonesian Culture":
+              return 2;
+            case "Program Design Methods":
+              return 2;
+            case "Scientific Computing":
+              return 3;
+            default:
+              return 0;
+          }
+        }
+
+        function getScoreRange(grade) {
+          switch (grade) {
+            case "A":
+              return "90 - 100";
+            case "A-":
+              return "85 - 89";
+            case "B+":
+              return "80 - 84";
+            case "B":
+              return "75 - 79";
+            case "B-":
+              return "70 - 74";
+            case "C":
+              return "65 - 69";
+            case "D":
+              return "50 - 64";
+            case "E":
+              return "0 - 49";
+            default:
+              return "";
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
